@@ -1,0 +1,64 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'org.jetbrains.dokka'
+
+android {
+    compileSdkVersion build_versions.compile_sdk
+
+    defaultConfig {
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+
+        archivesBaseName = "input-mask-android"
+
+        versionCode getVersionCodeFromProperties()
+        versionName getVersionNameFromProperties()
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+
+        androidTest.java.srcDirs += 'src/androidTest/kotlin'
+        test.java.srcDirs += 'src/test/kotlin'
+    }
+
+    dokka {
+        outputFormat = 'html'
+        outputDirectory = "$buildDir/documentation"
+
+        reportUndocumented = false
+        includeNonPublic = true
+        skipEmptyPackages = false
+
+        includes = ['module-info.md']
+
+        sourceDirs = files('src/main/kotlin')
+        kotlinTasks {
+            // Workaround to avoid generating unnecessary documentation
+        }
+    }
+}
+
+dependencies {
+    implementation deps.kotlin.stdlib
+
+    testImplementation deps.test.junit
+}
+
+task dokkaMarkdown(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'markdown'
+    outputDirectory = "$buildDir/markdowndoc"
+}
+
+task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+    outputFormat = 'javadoc'
+    outputDirectory = "$buildDir/javadoc"
+}
+
